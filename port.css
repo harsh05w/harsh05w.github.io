@@ -100,7 +100,7 @@
    background: #00abf0;
    border: 4px solid #00abf0;
    border-radius: 56px;
-   font-size: 26px;
+   font-size: 20px;
    color: #081b29;
    text-decoration: none;
    font-weight: 700;
@@ -108,6 +108,7 @@
    z-index: 1;
    overflow: hidden;
    transition: .5s;
+   box-shadow: 0 0 1rem #00abf0;
 }
 
 .btn-box a:nth-child(2) {
@@ -144,7 +145,7 @@
    width: 100%;  
 }
 
-.home-sci {
+.Social-media {
    position: absolute;
    bottom: 40px;
    width: 170px;
@@ -153,7 +154,7 @@
    justify-content: space-between;
 }
 
-.home-sci a{
+.Social-media a{
    position: relative;
    display: inline-flex;
    justify-content: center;
@@ -169,12 +170,13 @@
    z-index: 1;
    overflow: hidden;
    transition: .5s;
+   box-shadow: 0 0 1rem #00abf0;
 }
 
-.home-sci a:hover {
+.Social-media a:hover {
    color:#081b29;
 }
-.home-sci a::before {
+.Social-media a::before {
    content: '';
    position: absolute;
    top: 0;
@@ -186,8 +188,72 @@
    transition: .5s;
 }
 
-.home-sci a:hover::before {
+.Social-media a:hover::before {
    width: 100%;
 }
 
+.about {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 2rem;
+   background-color: #152236;
+   height: 100vh;
 
+}
+
+.heading {
+   text-align: center;
+   font-size: 4.5rem;
+}
+
+.about-content h2{
+   text-align: center;
+   line-height: 1.2;
+}
+
+.about-content h3{
+   font-size: 2.6rem;
+   text-align: left;
+}
+
+.about-content p{
+   font-size: 1rem;
+   margin: 1rem 0 2rem;
+
+}
+
+.services{
+   height: 100vh;
+   margin-left: 2rem;
+   margin-right: 2rem;
+}
+
+
+.services h2{
+   margin-bottom: 5rem;
+}
+
+
+.services-container {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   gap: 2rem;
+
+}
+
+.services-container .services-box{
+   flex: 1 1 30rem;
+   background: #152236;
+   padding: 3rem 2rem 4rem;
+   border-radius: 2rem;
+   text-align: center;
+   border: .2rem solid #081b29;
+   
+}
+
+.services-box i{
+   font-size: 7rem;
+   color: #00abf0;
+}
