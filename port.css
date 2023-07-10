@@ -231,7 +231,7 @@
 }
 
 .services{
-   height: 100vh;
+   height: 140vh;
    margin-left: 2rem;
    margin-right: 2rem;
 }
@@ -283,7 +283,7 @@
 
 .portfolio {
     background-color: #152236;
-    height: 100vh;
+    height: 150vh;
 }
 
 .portfolio h2{
