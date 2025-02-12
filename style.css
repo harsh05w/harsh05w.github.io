@@ -276,6 +276,7 @@ span{
     }
 
     .home .home-content {
+        justify-content: right;
         align-items: center;
         flex-wrap: wrap;
     }
