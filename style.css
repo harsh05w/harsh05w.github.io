@@ -237,6 +237,7 @@ span{
     border-radius: 2rem;
     text-align: center;
     border: .2rem solid #081b29;
+    justify-content: space-evenly;
     
  }
  
@@ -288,6 +289,11 @@ span{
         align-items: center;
         width: 70vw;
         margin-top: 4rem;
+    }
+  
+    .services-container{
+   
+        flex-wrap: wrap;
     }
 }
 
