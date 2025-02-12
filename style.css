@@ -277,6 +277,7 @@ span{
 
     .home .home-content {
         align-items: center;
+        flex-wrap: wrap;
     }
     .home .home-content h3{
         font-size: 2.5rem;
