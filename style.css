@@ -271,6 +271,7 @@ span{
         flex-direction: column;
         margin: 5rem 4rem;
         margin-left: 30rem;
+        flex-wrap: wrap;
         
     }
 
