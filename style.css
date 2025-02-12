@@ -281,11 +281,15 @@ span{
     }
     .home .home-content h3{
         font-size: 2.5rem;
+
     }
 
     .home-content h1{
         font-size: 5rem;
     }
+
+    .home-content p{
+        text-wrap: wrap;
 
     .home-img img{
         align-items: center;
