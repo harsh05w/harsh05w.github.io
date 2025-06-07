@@ -3,7 +3,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 const container = document.getElementById('container');
 const ui = document.getElementById('ui');
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0, 5, 60);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -18,16 +18,46 @@ scene.add(light);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-// Sun
 const textureLoader = new THREE.TextureLoader();
-const sunTexture = textureLoader.load('2k_sun.jpg');
+
+// Theme state
+let isDark = true;
+
+// Sun textures for themes
+const sunTextures = {
+  dark: '/Solar System Sim/Public/assets/2k_sun.jpg',
+  light: '/Solar System Sim/Public/assets/sun_light.jpg',
+};
+
+const sunTexture = textureLoader.load(sunTextures.dark);
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
   new THREE.MeshBasicMaterial({ map: sunTexture })
 );
 scene.add(sun);
 
-// Planet data
+const planetTexturesDark = {
+  Mercury: '/Solar System Sim/Public/assets/mercury.jpg',
+  Venus: '/Solar System Sim/Public/assets/venus.jpg',
+  Earth: '/Solar System Sim/Public/assets/earth.jpg',
+  Mars: '/Solar System Sim/Public/assets/mars.jpg',
+  Jupiter: '/Solar System Sim/Public/assets/jupiter.jpg',
+  Saturn: '/Solar System Sim/Public/assets/saturn.jpg',
+  Uranus: '/Solar System Sim/Public/assets/uranus.jpg',
+  Neptune: '/Solar System Sim/Public/assets/neptune.jpg',
+};
+
+const planetTexturesLight = {
+  Mercury: '/Solar System Sim/Public/assets/mercury_light.jpg',
+  Venus: '/Solar System Sim/Public/assets/venus_light.jpg',
+  Earth: '/Solar System Sim/Public/assets/earth_light.jpg',
+  Mars: '/Solar System Sim/Public/assets/mars_light.jpg',
+  Jupiter: '/Solar System Sim/Public/assets/jupiter_light.jpg',
+  Saturn: '/Solar System Sim/Public/assets/saturn_light.jpg',
+  Uranus: '/Solar System Sim/Public/assets/uranus_light.jpg',
+  Neptune: '/Solar System Sim/Public/assets/neptune_light.jpg',
+};
+
 const planetsData = [
   { name: 'Mercury', size: 0.6, distance: 5 },
   { name: 'Venus', size: 1, distance: 7 },
@@ -39,23 +69,12 @@ const planetsData = [
   { name: 'Neptune', size: 1.6, distance: 31 },
 ];
 
-const planetTextures = {
-  Mercury: 'mercury.jpg',
-  Venus: 'venus.jpg',
-  Earth: 'earth.jpg',
-  Mars: 'mars.jpg',
-  Jupiter: 'jupiter.jpg',
-  Saturn: 'saturn.jpg',
-  Uranus: 'uranus.jpg',
-  Neptune: 'neptune.jpg',
-};
-
 const planets = [];
 const labels = [];
 
 planetsData.forEach(data => {
   const geo = new THREE.SphereGeometry(data.size, 32, 32);
-  const texture = textureLoader.load(planetTextures[data.name]);
+  const texture = textureLoader.load(planetTexturesDark[data.name]);
   const mat = new THREE.MeshStandardMaterial({ map: texture });
   const mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
@@ -79,7 +98,7 @@ planetsData.forEach(data => {
     const ring = new THREE.Mesh(
       ringGeo,
       new THREE.MeshStandardMaterial({
-        map: textureLoader.load('saturn_ring.png'),
+        map: textureLoader.load('/Solar System Sim/Public/assets/saturn_ring.png'),
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
@@ -90,15 +109,20 @@ planetsData.forEach(data => {
     planet.ring = ring;
   }
 
-  // Label
+  // Label creation
   const div = document.createElement('div');
   div.className = 'planet-label';
   div.textContent = data.name;
+  div.style.position = 'absolute';
+  div.style.color = '#fff';
+  div.style.pointerEvents = 'none';
+  div.style.fontSize = '12px';
+  div.style.fontFamily = 'sans-serif';
   document.body.appendChild(div);
   labels.push({ element: div, planet });
 });
 
-// UI Sliders
+// UI sliders for planet speeds
 planets.forEach(planet => {
   const label = document.createElement('label');
   label.textContent = planet.name;
@@ -117,6 +141,18 @@ planets.forEach(planet => {
   ui.appendChild(label);
 });
 
+// Play/Pause button
+const playPauseBtn = document.createElement('button');
+playPauseBtn.id = 'playPauseBtn';
+playPauseBtn.textContent = 'Pause';
+ui.appendChild(playPauseBtn);
+
+let isPaused = false;
+playPauseBtn.addEventListener('click', () => {
+  isPaused = !isPaused;
+  playPauseBtn.textContent = isPaused ? 'Play' : 'Pause';
+});
+
 // Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / (window.innerHeight - 60);
@@ -124,7 +160,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight - 60);
 });
 
-// Stars
+// Add stars
 function addStar() {
   const geometry = new THREE.SphereGeometry(0.2, 24, 24);
   const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
@@ -134,10 +170,9 @@ function addStar() {
 }
 Array(1000).fill().forEach(addStar);
 
-// Mouse + Touch Camera Controls
+// Camera drag controls (mouse + touch)
 let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
 let isDragging = false, isDraggingOnUI = false;
-let previousTouches = [];
 
 document.addEventListener('mousedown', (event) => {
   isDraggingOnUI = ui.contains(event.target);
@@ -151,42 +186,78 @@ document.addEventListener('mousemove', (event) => {
   }
 });
 
-// Mouse scroll zoom
-document.addEventListener('wheel', (e) => {
-  camera.position.z += e.deltaY * 0.05;
-  camera.position.z = THREE.MathUtils.clamp(camera.position.z, 10, 200);
+document.addEventListener('touchstart', (event) => {
+  if (event.touches.length === 1) {
+    isDraggingOnUI = ui.contains(event.target);
+    isDragging = !isDraggingOnUI;
+  }
 });
 
-// Touch support
-container.addEventListener('touchstart', (e) => {
-  previousTouches = [...e.touches];
-}, { passive: true });
+document.addEventListener('touchend', () => { isDragging = false; });
 
-container.addEventListener('touchmove', (e) => {
-  if (e.touches.length === 1 && previousTouches.length === 1) {
-    const dx = e.touches[0].clientX - previousTouches[0].clientX;
-    const dy = e.touches[0].clientY - previousTouches[0].clientY;
-    mouseX += dx / window.innerWidth;
-    mouseY -= dy / window.innerHeight;
-  } else if (e.touches.length === 2 && previousTouches.length === 2) {
-    const dist1 = Math.hypot(
-      e.touches[0].clientX - e.touches[1].clientX,
-      e.touches[0].clientY - e.touches[1].clientY
-    );
-    const dist2 = Math.hypot(
-      previousTouches[0].clientX - previousTouches[1].clientX,
-      previousTouches[0].clientY - previousTouches[1].clientY
-    );
-    const zoomDelta = dist2 - dist1;
-    camera.position.z += zoomDelta * 0.02;
-    camera.position.z = THREE.MathUtils.clamp(camera.position.z, 10, 200);
+document.addEventListener('touchmove', (event) => {
+  if (isDragging && event.touches.length === 1) {
+    const touch = event.touches[0];
+    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+    mouseY = - (touch.clientY / window.innerHeight) * 2 + 1;
   }
-  previousTouches = [...e.touches];
-}, { passive: true });
+});
 
-// Animation Loop
+// Pinch to zoom support variables
+let prevDistance = null;
+let zoomSpeed = 0.1;
+
+// Handle pinch zoom
+document.addEventListener('touchmove', (event) => {
+  if (event.touches.length === 2) {
+    const dx = event.touches[0].clientX - event.touches[1].clientX;
+    const dy = event.touches[0].clientY - event.touches[1].clientY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (prevDistance !== null) {
+      const delta = distance - prevDistance;
+      camera.position.z -= delta * zoomSpeed;
+      camera.position.z = THREE.MathUtils.clamp(camera.position.z, 20, 150);
+    }
+    prevDistance = distance;
+  }
+});
+
+document.addEventListener('touchend', (event) => {
+  if (event.touches.length < 2) {
+    prevDistance = null;
+  }
+});
+
+// Zoom with mouse wheel
+document.addEventListener('wheel', (event) => {
+  camera.position.z += event.deltaY * 0.05;
+  camera.position.z = THREE.MathUtils.clamp(camera.position.z, 20, 150);
+});
+
+// Theme Toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.style.background = isDark ? '#000' : '#fff';
+  ui.style.background = isDark ? '#111' : '#ddd';
+  ui.style.color = isDark ? '#fff' : '#000';
+
+  // Update planet textures
+  const textures = isDark ? planetTexturesDark : planetTexturesLight;
+  planets.forEach(p => {
+    p.mesh.material.map = textureLoader.load(textures[p.name]);
+    p.mesh.material.needsUpdate = true;
+  });
+
+  // Update sun texture
+  sun.material.map = textureLoader.load(isDark ? sunTextures.dark : sunTextures.light);
+  sun.material.needsUpdate = true;
+});
+
 function animate() {
   requestAnimationFrame(animate);
+  if (isPaused) return;
 
   planets.forEach(planet => {
     planet.angle += planet.speed;
@@ -209,7 +280,7 @@ function animate() {
   camera.position.y = 5 + targetY * 10;
   camera.lookAt(0, 0, 0);
 
-  // Update labels
+  // Update label positions
   labels.forEach(({ element, planet }) => {
     const vector = planet.mesh.position.clone().project(camera);
     const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
@@ -220,14 +291,5 @@ function animate() {
 
   renderer.render(scene, camera);
 }
-animate();
 
-// Theme Toggle
-const themeToggle = document.getElementById('themeToggle');
-let isDark = true;
-themeToggle.addEventListener('click', () => {
-  isDark = !isDark;
-  document.body.style.background = isDark ? '#000' : '#fff';
-  ui.style.background = isDark ? '#111' : '#ddd';
-  ui.style.color = isDark ? '#fff' : '#000';
-});
+animate();
