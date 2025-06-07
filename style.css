@@ -1,5 +1,6 @@
-body,html{
-  margin: 0; padding: 0;
+body, html {
+  margin: 0;
+  padding: 0;
   overflow: hidden;
   background: #000;
   font-family: Arial, sans-serif;
@@ -7,47 +8,71 @@ body,html{
   display: flex;
   flex-direction: column;
   height: 100vh;
-  }
+}
+
 .container {
   flex: 1;
   position: relative;
-  }
+}
 
 .canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-#ui {
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px;
-      overflow-x: auto;
-      white-space: wrap;
-      display: flex;
-      gap: 15px;
-      box-sizing: border-box;
-    }
-.ui label {
-      display: flex;  
-      flex-direction: column;
-      font-size: 12px;
-      user-select: none;
-      min-width: 80px;
-      align-items: center;
-    }
-#ui input[type=range] {
-      width: 70px;
-    }
-@media (max-width: 500px) {
-      .ui {
-        font-size: 10px;
-        gap: 10px;
-      }
-      .ui label {
-        min-width: 60px;
-      }
-      .ui input[type=range] {
-        width: 50px;
-      }
-    }
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 
+#ui {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  box-sizing: border-box;
+  color: white;
+}
+
+#ui label {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  user-select: none;
+  min-width: 80px;
+  align-items: center;
+  color: inherit;
+}
+
+#ui input[type=range] {
+  width: 70px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+  #ui {
+    font-size: 10px;
+    gap: 10px;
+  }
+
+  #ui label {
+    min-width: 60px;
+  }
+
+  #ui input[type=range] {
+    width: 50px;
+  }
+}
+
+/* Tooltip labels for planets */
+.planet-label {
+  position: absolute;
+  white-space: nowrap;
+  color: white;
+  text-shadow: 0 0 5px black;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s;
+}
