@@ -21,7 +21,7 @@ scene.add(ambientLight);
 const textureLoader = new THREE.TextureLoader();
 
 // Sun texture (only one version)
-const sunTexture = textureLoader.load('/Solar System Sim/Public/assets/2k_sun.jpg');
+const sunTexture = textureLoader.load('2k_sun.jpg');
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
   new THREE.MeshBasicMaterial({ map: sunTexture })
@@ -29,14 +29,14 @@ const sun = new THREE.Mesh(
 scene.add(sun);
 
 const planetTextures = {
-  Mercury: '/Solar System Sim/Public/assets/mercury.jpg',
-  Venus: '/Solar System Sim/Public/assets/venus.jpg',
-  Earth: '/Solar System Sim/Public/assets/earth.jpg',
-  Mars: '/Solar System Sim/Public/assets/mars.jpg',
-  Jupiter: '/Solar System Sim/Public/assets/jupiter.jpg',
-  Saturn: '/Solar System Sim/Public/assets/saturn.jpg',
-  Uranus: '/Solar System Sim/Public/assets/uranus.jpg',
-  Neptune: '/Solar System Sim/Public/assets/neptune.jpg',
+  Mercury: 'mercury.jpg',
+  Venus: 'venus.jpg',
+  Earth: 'earth.jpg',
+  Mars: 'mars.jpg',
+  Jupiter: 'jupiter.jpg',
+  Saturn: 'saturn.jpg',
+  Uranus: 'uranus.jpg',
+  Neptune: 'neptune.jpg',
 };
 
 const planetsData = [
@@ -79,7 +79,7 @@ planetsData.forEach(data => {
     const ring = new THREE.Mesh(
       ringGeo,
       new THREE.MeshStandardMaterial({
-        map: textureLoader.load('/Solar System Sim/Public/assets/saturn_ring.png'),
+        map: textureLoader.load('saturn_ring.png'),
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
