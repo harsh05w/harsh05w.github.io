@@ -20,23 +20,15 @@ scene.add(ambientLight);
 
 const textureLoader = new THREE.TextureLoader();
 
-// Theme state
-let isDark = true;
-
-// Sun textures for themes
-const sunTextures = {
-  dark: '/Solar System Sim/Public/assets/2k_sun.jpg',
-  light: '/Solar System Sim/Public/assets/sun_light.jpg',
-};
-
-const sunTexture = textureLoader.load(sunTextures.dark);
+// Sun texture (only one version)
+const sunTexture = textureLoader.load('/Solar System Sim/Public/assets/2k_sun.jpg');
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
   new THREE.MeshBasicMaterial({ map: sunTexture })
 );
 scene.add(sun);
 
-const planetTexturesDark = {
+const planetTextures = {
   Mercury: '/Solar System Sim/Public/assets/mercury.jpg',
   Venus: '/Solar System Sim/Public/assets/venus.jpg',
   Earth: '/Solar System Sim/Public/assets/earth.jpg',
@@ -45,17 +37,6 @@ const planetTexturesDark = {
   Saturn: '/Solar System Sim/Public/assets/saturn.jpg',
   Uranus: '/Solar System Sim/Public/assets/uranus.jpg',
   Neptune: '/Solar System Sim/Public/assets/neptune.jpg',
-};
-
-const planetTexturesLight = {
-  Mercury: '/Solar System Sim/Public/assets/mercury_light.jpg',
-  Venus: '/Solar System Sim/Public/assets/venus_light.jpg',
-  Earth: '/Solar System Sim/Public/assets/earth_light.jpg',
-  Mars: '/Solar System Sim/Public/assets/mars_light.jpg',
-  Jupiter: '/Solar System Sim/Public/assets/jupiter_light.jpg',
-  Saturn: '/Solar System Sim/Public/assets/saturn_light.jpg',
-  Uranus: '/Solar System Sim/Public/assets/uranus_light.jpg',
-  Neptune: '/Solar System Sim/Public/assets/neptune_light.jpg',
 };
 
 const planetsData = [
@@ -74,7 +55,7 @@ const labels = [];
 
 planetsData.forEach(data => {
   const geo = new THREE.SphereGeometry(data.size, 32, 32);
-  const texture = textureLoader.load(planetTexturesDark[data.name]);
+  const texture = textureLoader.load(planetTextures[data.name]);
   const mat = new THREE.MeshStandardMaterial({ map: texture });
   const mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
@@ -235,24 +216,19 @@ document.addEventListener('wheel', (event) => {
   camera.position.z = THREE.MathUtils.clamp(camera.position.z, 20, 150);
 });
 
-// Theme Toggle
+// Theme Toggle: only background and UI color changes
 const themeToggle = document.getElementById('themeToggle');
 themeToggle.addEventListener('click', () => {
-  isDark = !isDark;
-  document.body.style.background = isDark ? '#000' : '#fff';
-  ui.style.background = isDark ? '#111' : '#ddd';
-  ui.style.color = isDark ? '#fff' : '#000';
-
-  // Update planet textures
-  const textures = isDark ? planetTexturesDark : planetTexturesLight;
-  planets.forEach(p => {
-    p.mesh.material.map = textureLoader.load(textures[p.name]);
-    p.mesh.material.needsUpdate = true;
-  });
-
-  // Update sun texture
-  sun.material.map = textureLoader.load(isDark ? sunTextures.dark : sunTextures.light);
-  sun.material.needsUpdate = true;
+  const isDark = document.body.style.background === 'rgb(0, 0, 0)' || document.body.style.background === '#000' || !document.body.style.background;
+  if (isDark) {
+    document.body.style.background = '#fff';
+    ui.style.background = '#ddd';
+    ui.style.color = '#000';
+  } else {
+    document.body.style.background = '#000';
+    ui.style.background = '#111';
+    ui.style.color = '#fff';
+  }
 });
 
 function animate() {
