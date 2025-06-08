@@ -10,52 +10,55 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight - 60);
 container.appendChild(renderer.domElement);
 
-// Loaders
-const textureLoader = new THREE.TextureLoader();
+// Background with starry skybox
+const loader = new THREE.CubeTextureLoader();
+const starCubeTexture = loader.load([
+  '/Solar System Sim/Public/assets/stars.jpg',
+  '/Solar System Sim/Public/assets/stars.jpg',
+  '/Solar System Sim/Public/assets/stars.jpg',
+  '/Solar System Sim/Public/assets/stars.jpg',
+  '/Solar System Sim/Public/assets/stars.jpg',
+  '/Solar System Sim/Public/assets/stars.jpg',
+]);
+scene.background = starCubeTexture;
 
-// Background: Star Sphere
-const starTexture = textureLoader.load('stars.jpg');
-const starGeo = new THREE.SphereGeometry(500, 64, 64);
-const starMat = new THREE.MeshBasicMaterial({ map: starTexture, side: THREE.BackSide });
-const starField = new THREE.Mesh(starGeo, starMat);
-scene.add(starField);
-
-// Physical stars
-const starMatSmall = new THREE.MeshBasicMaterial({ color: 0xffffff });
-for (let i = 0; i < 1000; i++) {
-  const star = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), starMatSmall);
-  star.position.set(
-    (Math.random() - 0.5) * 1000,
-    (Math.random() - 0.5) * 1000,
-    (Math.random() - 0.5) * 1000
-  );
-  scene.add(star);
+// Add physical stars
+const starGeometry = new THREE.BufferGeometry();
+const starCount = 1000;
+const starPositions = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount * 3; i++) {
+  starPositions[i] = (Math.random() - 0.5) * 200;
 }
+starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 });
+const stars = new THREE.Points(starGeometry, starMaterial);
+scene.add(stars);
 
 // Lighting
 const light = new THREE.PointLight(0xffffff, 40, 300);
 light.position.set(0, 0, 20);
 scene.add(light);
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-// Sun
-const sunTexture = textureLoader.load('2k_sun.jpg');
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+
+const textureLoader = new THREE.TextureLoader();
+const sunTexture = textureLoader.load('/Solar System Sim/Public/assets/2k_sun.jpg');
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
   new THREE.MeshBasicMaterial({ map: sunTexture })
 );
 scene.add(sun);
 
-// Planet Data
 const planetTextures = {
-  Mercury: 'mercury.jpg',
-  Venus: 'venus.jpg',
-  Earth: 'earth.jpg',
-  Mars: 'mars.jpg',
-  Jupiter: 'jupiter.jpg',
-  Saturn: 'saturn.jpg',
-  Uranus: 'uranus.jpg',
-  Neptune: 'neptune.jpg',
+  Mercury: '/Solar System Sim/Public/assets/mercury.jpg',
+  Venus: '/Solar System Sim/Public/assets/venus.jpg',
+  Earth: '/Solar System Sim/Public/assets/earth.jpg',
+  Mars: '/Solar System Sim/Public/assets/mars.jpg',
+  Jupiter: '/Solar System Sim/Public/assets/jupiter.jpg',
+  Saturn: '/Solar System Sim/Public/assets/saturn.jpg',
+  Uranus: '/Solar System Sim/Public/assets/uranus.jpg',
+  Neptune: '/Solar System Sim/Public/assets/neptune.jpg',
 };
 
 const planetsData = [
@@ -64,7 +67,7 @@ const planetsData = [
   { name: 'Earth', size: 1.2, distance: 10 },
   { name: 'Mars', size: 0.9, distance: 13 },
   { name: 'Jupiter', size: 2.9, distance: 17 },
-  { name: 'Saturn', size: 2, distance: 26 },
+  { name: 'Saturn', size: 2, distance: 27 },  // Increased distance from 26 to 27
   { name: 'Uranus', size: 1.7, distance: 30 },
   { name: 'Neptune', size: 1.6, distance: 34 },
 ];
@@ -74,14 +77,14 @@ const labels = [];
 
 planetsData.forEach(data => {
   const geo = new THREE.SphereGeometry(data.size, 32, 32);
-  const mat = new THREE.MeshStandardMaterial({ map: textureLoader.load(planetTextures[data.name]) });
+  const texture = textureLoader.load(planetTextures[data.name]);
+  const mat = new THREE.MeshStandardMaterial({ map: texture });
   const mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
 
   const planet = { ...data, mesh, angle: Math.random() * Math.PI * 2, speed: 0.01 };
   planets.push(planet);
 
-  // Orbits
   const orbitCurve = new THREE.EllipseCurve(0, 0, data.distance, data.distance, 0, 2 * Math.PI);
   const points = orbitCurve.getPoints(100).map(p => new THREE.Vector3(p.x, 0, p.y));
   const orbit = new THREE.LineLoop(
@@ -96,7 +99,7 @@ planetsData.forEach(data => {
     const ring = new THREE.Mesh(
       ringGeo,
       new THREE.MeshStandardMaterial({
-        map: textureLoader.load('saturn_ring.png'),
+        map: textureLoader.load('/Solar System Sim/Public/assets/saturn_ring.png'),
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
@@ -109,7 +112,9 @@ planetsData.forEach(data => {
 
   if (data.name === 'Earth') {
     const moonGeo = new THREE.SphereGeometry(0.3, 32, 32);
-    const moonMat = new THREE.MeshStandardMaterial({ map: textureLoader.load('moon.jpg') });
+    const moonMat = new THREE.MeshStandardMaterial({
+      map: textureLoader.load('/Solar System Sim/Public/assets/moon.jpg')
+    });
     const moonMesh = new THREE.Mesh(moonGeo, moonMat);
     scene.add(moonMesh);
     planet.moon = { mesh: moonMesh, angle: 0 };
@@ -127,19 +132,19 @@ planetsData.forEach(data => {
   labels.push({ element: div, planet });
 });
 
-// Asteroid belt (between Jupiter and Saturn)
-for (let i = 0; i < 500; i++) {
-  const asteroid = new THREE.Mesh(
-    new THREE.SphereGeometry(Math.random() * 0.15, 8, 8),
-    new THREE.MeshStandardMaterial({ color: 0x888888 })
-  );
+// Asteroid belt between Jupiter and Saturn
+const asteroidCount = 500;
+for (let i = 0; i < asteroidCount; i++) {
+  const asteroidGeo = new THREE.SphereGeometry(Math.random() * 0.15, 8, 8);
+  const asteroidMat = new THREE.MeshStandardMaterial({ color: 0x888888 });
+  const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
   const angle = Math.random() * Math.PI * 2;
-  const radius = 21 + Math.random() * 3; // 21 to 24 units
+  const radius = 21 + Math.random() * 3; // between 21 and 24
   asteroid.position.set(Math.cos(angle) * radius, (Math.random() - 0.5) * 0.5, Math.sin(angle) * radius);
   scene.add(asteroid);
 }
 
-// Sliders
+// UI sliders
 planets.forEach(planet => {
   const label = document.createElement('label');
   label.textContent = planet.name;
@@ -150,71 +155,104 @@ planets.forEach(planet => {
   slider.max = '0.05';
   slider.step = '0.001';
   slider.value = '0.01';
-  slider.addEventListener('input', e => planet.speed = parseFloat(e.target.value));
+  slider.addEventListener('input', e => {
+    planet.speed = parseFloat(e.target.value);
+  });
 
   label.appendChild(slider);
   ui.appendChild(label);
 });
 
-// Play/Pause
 const playPauseBtn = document.createElement('button');
+playPauseBtn.id = 'playPauseBtn';
 playPauseBtn.textContent = 'Pause';
 ui.appendChild(playPauseBtn);
+
 let isPaused = false;
-playPauseBtn.onclick = () => {
+playPauseBtn.addEventListener('click', () => {
   isPaused = !isPaused;
   playPauseBtn.textContent = isPaused ? 'Play' : 'Pause';
-};
+});
 
-// Resize
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / (window.innerHeight - 60);
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight - 60);
 });
 
-// Drag rotation
-let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0, isDragging = false, isDraggingOnUI = false;
-document.addEventListener('mousedown', e => { isDraggingOnUI = ui.contains(e.target); isDragging = !isDraggingOnUI; });
+let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+let isDragging = false;
+let lastTouchX = 0, lastTouchY = 0;
+let prevDistance = null;
+const zoomSpeed = 0.1;
+
+document.addEventListener('mousedown', e => {
+  isDragging = !ui.contains(e.target);
+});
 document.addEventListener('mouseup', () => isDragging = false);
 document.addEventListener('mousemove', e => {
   if (isDragging) {
-    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+    mouseX += (e.movementX || 0) / window.innerWidth;
+    mouseY -= (e.movementY || 0) / window.innerHeight;
   }
 });
 
-// Zoom
-let prevDistance = null, zoomSpeed = 0.1;
+document.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    lastTouchX = e.touches[0].clientX;
+    lastTouchY = e.touches[0].clientY;
+  }
+});
 document.addEventListener('touchmove', e => {
+  if (isDragging && e.touches.length === 1) {
+    const dx = e.touches[0].clientX - lastTouchX;
+    const dy = e.touches[0].clientY - lastTouchY;
+    mouseX += dx / window.innerWidth;
+    mouseY -= dy / window.innerHeight;
+    lastTouchX = e.touches[0].clientX;
+    lastTouchY = e.touches[0].clientY;
+  }
   if (e.touches.length === 2) {
     const dx = e.touches[0].clientX - e.touches[1].clientX;
     const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.sqrt(dx * dx + dy * dy);
     if (prevDistance !== null) {
-      camera.position.z -= (dist - prevDistance) * zoomSpeed;
+      const delta = distance - prevDistance;
+      camera.position.z -= delta * zoomSpeed;
       camera.position.z = THREE.MathUtils.clamp(camera.position.z, 20, 150);
     }
-    prevDistance = dist;
+    prevDistance = distance;
+  }
+}, { passive: false });
+
+document.addEventListener('touchend', e => {
+  if (e.touches.length === 0) {
+    isDragging = false;
+    prevDistance = null;
   }
 });
+
 document.addEventListener('wheel', e => {
   camera.position.z += e.deltaY * 0.05;
   camera.position.z = THREE.MathUtils.clamp(camera.position.z, 20, 150);
 });
-document.addEventListener('touchend', e => {
-  if (e.touches.length < 2) prevDistance = null;
+
+// Theme toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  const isDark = document.body.style.background === 'rgb(0, 0, 0)' || document.body.style.background === '#000' || !document.body.style.background;
+  if (isDark) {
+    document.body.style.background = '#fff';
+    ui.style.background = '#ddd';
+    ui.style.color = '#000';
+  } else {
+    document.body.style.background = '#000';
+    ui.style.background = '#111';
+    ui.style.color = '#fff';
+  }
 });
 
-// Theme Toggle
-document.getElementById('themeToggle').onclick = () => {
-  const isDark = document.body.style.background === '#000' || !document.body.style.background;
-  document.body.style.background = isDark ? '#fff' : '#000';
-  ui.style.background = isDark ? '#ddd' : '#111';
-  ui.style.color = isDark ? '#000' : '#fff';
-};
-
-// Animate
 function animate() {
   requestAnimationFrame(animate);
   if (isPaused) return;
@@ -228,23 +266,27 @@ function animate() {
     );
     planet.mesh.rotation.y += 0.01;
 
-    if (planet.moon) {
+    if (planet.name === 'Earth' && planet.moon) {
       planet.moon.angle += 0.03;
-      const moonDist = 1.5;
+      const moonDistance = 1.5;
       planet.moon.mesh.position.set(
-        planet.mesh.position.x + Math.cos(planet.moon.angle) * moonDist,
+        planet.mesh.position.x + Math.cos(planet.moon.angle) * moonDistance,
         0,
-        planet.mesh.position.z + Math.sin(planet.moon.angle) * moonDist
+        planet.mesh.position.z + Math.sin(planet.moon.angle) * moonDistance
       );
     }
 
     if (planet.ring) {
       planet.ring.position.copy(planet.mesh.position);
+      planet.ring.rotation.x = 0.44;
     }
   });
 
   targetX += (mouseX - targetX) * 0.05;
   targetY += (mouseY - targetY) * 0.05;
+  targetX = THREE.MathUtils.clamp(targetX, -2, 2);
+  targetY = THREE.MathUtils.clamp(targetY, -1.5, 1.5);
+
   camera.position.x = targetX * 30;
   camera.position.y = 5 + targetY * 10;
   camera.lookAt(0, 0, 0);
