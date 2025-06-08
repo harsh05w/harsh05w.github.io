@@ -14,7 +14,7 @@ container.appendChild(renderer.domElement);
 const textureLoader = new THREE.TextureLoader();
 
 // Background: Star Sphere
-const starTexture = textureLoader.load('assets/stars.jpg');
+const starTexture = textureLoader.load('stars.jpg');
 const starGeo = new THREE.SphereGeometry(500, 64, 64);
 const starMat = new THREE.MeshBasicMaterial({ map: starTexture, side: THREE.BackSide });
 const starField = new THREE.Mesh(starGeo, starMat);
@@ -39,7 +39,7 @@ scene.add(light);
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
 // Sun
-const sunTexture = textureLoader.load('assets/2k_sun.jpg');
+const sunTexture = textureLoader.load('2k_sun.jpg');
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(3, 32, 32),
   new THREE.MeshBasicMaterial({ map: sunTexture })
@@ -48,14 +48,14 @@ scene.add(sun);
 
 // Planet Data
 const planetTextures = {
-  Mercury: 'assets/mercury.jpg',
-  Venus: 'assets/venus.jpg',
-  Earth: 'assets/earth.jpg',
-  Mars: 'assets/mars.jpg',
-  Jupiter: 'assets/jupiter.jpg',
-  Saturn: 'assets/saturn.jpg',
-  Uranus: 'assets/uranus.jpg',
-  Neptune: 'assets/neptune.jpg',
+  Mercury: 'mercury.jpg',
+  Venus: 'venus.jpg',
+  Earth: 'earth.jpg',
+  Mars: 'mars.jpg',
+  Jupiter: 'jupiter.jpg',
+  Saturn: 'saturn.jpg',
+  Uranus: 'uranus.jpg',
+  Neptune: 'neptune.jpg',
 };
 
 const planetsData = [
@@ -96,7 +96,7 @@ planetsData.forEach(data => {
     const ring = new THREE.Mesh(
       ringGeo,
       new THREE.MeshStandardMaterial({
-        map: textureLoader.load('assets/saturn_ring.png'),
+        map: textureLoader.load('saturn_ring.png'),
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
@@ -109,7 +109,7 @@ planetsData.forEach(data => {
 
   if (data.name === 'Earth') {
     const moonGeo = new THREE.SphereGeometry(0.3, 32, 32);
-    const moonMat = new THREE.MeshStandardMaterial({ map: textureLoader.load('assets/moon.jpg') });
+    const moonMat = new THREE.MeshStandardMaterial({ map: textureLoader.load('moon.jpg') });
     const moonMesh = new THREE.Mesh(moonGeo, moonMat);
     scene.add(moonMesh);
     planet.moon = { mesh: moonMesh, angle: 0 };
